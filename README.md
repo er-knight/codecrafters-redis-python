@@ -59,3 +59,6 @@ You can fix this by installing Python 3.8 locally and using that.
 
 If you'd like to use a different version of Python, change the `language_pack`
 value in `codecrafters.yml`.
+
+# References
+- [Asyncio Streams in Python by Jason Brownlee](https://superfastpython.com/asyncio-streams)
