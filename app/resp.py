@@ -53,15 +53,21 @@ async def parse(reader: asyncio.StreamReader):
         
         while True:        
             datatype = await reader.read(1)
-            print('here')
             if not datatype:
                 if len(commands) != num_commands:
                     logger.error(f'Expected {num_commands} commands, got {len(commands)}')
                     return []
                 break
 
+            _ = await reader.read(2) 
+            # terminator not found after `length` bytes
+            if _ != terminator:
+                logger.error(f"Expected {terminator}, got {_}")
+                return []
+
             if datatype == DataType.BULK_STRING:
                 length = int(await reader.readuntil(terminator))
+                print('here')
                 data   = await reader.read(length)
 
                 _ = await reader.read(2) 
