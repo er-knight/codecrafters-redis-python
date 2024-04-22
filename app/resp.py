@@ -40,12 +40,12 @@ async def parse(reader: asyncio.StreamReader):
 
     try:
         _ = await reader.read(1)
-        print('here')
         if _ != b'*': # not an array
             logger.error(f'Expected {DataType.ARRAY}, got {_}')
             return []
         
         num_commands = int(await reader.readuntil(terminator))
+        print('here')
         # note: even though read.readuntil() returns bytes along with the terminator,
         # int() is able to handle bytes and surrounding whitespaces. 
         # note: '\r' and '\n' are counted as whitespaces.
