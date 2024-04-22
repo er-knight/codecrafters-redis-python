@@ -5,6 +5,7 @@ from . import resp
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
         commands = await resp.parse(reader)
+        print(commands)
         result   = await resp.execute(commands) 
         writer.write(result)
         await writer.drain()
