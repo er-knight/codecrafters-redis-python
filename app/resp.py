@@ -82,6 +82,9 @@ async def encode(datatype: DataType, data: str):
     """
     Encode data as per RESP specifications
     """
+
+    print(datatype)
+    
     if datatype in (DataType.SIMPLE_STRING, DataType.SIMPLE_ERROR):
         return b'\r\n'.join([datatype, data.encode(), b''])
 
