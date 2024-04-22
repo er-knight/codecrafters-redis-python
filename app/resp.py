@@ -59,16 +59,11 @@ async def parse(reader: asyncio.StreamReader):
                     return []
                 break
 
-            _ = await reader.read(2) 
-            # terminator not found after `length` bytes
-            if _ != terminator:
-                logger.error(f"Expected {terminator}, got {_}")
-                return []
-
             if datatype == DataType.BULK_STRING:
                 length = int(await reader.readuntil(terminator))
-                print('here')
+                print('here', length)
                 data   = await reader.read(length)
+                print('here', data)
 
                 _ = await reader.read(2) 
                 # terminator not found after `length` bytes
