@@ -4,8 +4,8 @@ from . import resp
 
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
-        commands = resp.parse(reader)
-        result   = resp.execute(commands) 
+        commands = await resp.parse(reader)
+        result   = await resp.execute(commands) 
         writer.write(result)
         await writer.drain()
 
