@@ -82,10 +82,15 @@ async def encode(datatype: DataType, data: str):
     """
     Encode data as per RESP specifications
     """
-    data   = data.encode()
-    length = len(data)
-    return b'\r\n'.join([datatype + str(length).encode(), data, b''])
+    if datatype in (DataType.SIMPLE_STRING, DataType.SIMPLE_ERROR):
+        return b'\r\n'.join([datatype, data.encode(), b''])
 
+    if datatype == DataType.BULK_STRING:
+        data   = data.encode()
+        length = len(data)
+        return b'\r\n'.join([datatype + str(length).encode(), data, b''])
+    
+    return b''
 
 async def execute(commands: list[str]):
     """
