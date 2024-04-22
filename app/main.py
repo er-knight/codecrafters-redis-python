@@ -5,6 +5,7 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         command = await reader.readline()
         print(command)
         writer.write('+PONG\r\n'.encode())
+        writer.write_eof()
         await writer.drain() 
 
 async def main():
