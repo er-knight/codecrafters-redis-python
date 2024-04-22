@@ -45,7 +45,6 @@ async def parse(reader: asyncio.StreamReader):
             return []
         
         num_commands = int(await reader.readuntil(terminator))
-        print('here')
         # note: even though read.readuntil() returns bytes along with the terminator,
         # int() is able to handle bytes and surrounding whitespaces. 
         # note: '\r' and '\n' are counted as whitespaces.
@@ -54,6 +53,7 @@ async def parse(reader: asyncio.StreamReader):
         
         while True:        
             datatype = await reader.read(1)
+            print('here')
             if not datatype:
                 if len(commands) != num_commands:
                     logger.error(f'Expected {num_commands} commands, got {len(commands)}')
