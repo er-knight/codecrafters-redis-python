@@ -1,7 +1,6 @@
 import asyncio
 
-async def handler(reader, writer):
-    await reader.read()
+async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     writer.write('+PONG\r\n'.encode())
     await writer.drain() 
 
