@@ -2,11 +2,10 @@ import asyncio
 
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
-        command = await reader.readline()
+        command = await reader.read(n=1024)
         print(command)
         writer.write('+PONG\r\n'.encode())
-        writer.write_eof()
-        await writer.drain() 
+        await writer.drain()
 
 async def main():
     server = await asyncio.start_server(handler, host='127.0.0.1', port=6379)
