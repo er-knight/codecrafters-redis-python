@@ -125,9 +125,12 @@ async def execute(commands: list[str]):
     if commands[0] == Command.SET:
         key   = commands[1]
         value = commands[2]
-        px    = int(commands[4]) if len(commands) == 5 else None
-        
-        store[key] = {'value': value, 'px': time.time() * 1000 + px}
+
+        store[key] = {'value': value, 'px': None}
+
+        if len(commands) == 5:
+            px = int(commands[4])
+            store[key]['px'] = time.time() * 1000 + px
 
         return await encode(DataType.SIMPLE_STRING, 'OK')
 
@@ -136,9 +139,9 @@ async def execute(commands: list[str]):
 
         if key in store:
             timestamp_ms = time.time() * 1000
-            if timestamp_ms < store[key]['px']:
+            if not store[key]['px'] or timestamp_ms < store[key]['px']:
                 return await encode(DataType.BULK_STRING, store[key])
                 
             store.pop(key)
-        
+
         return Constant.NULL_BULK_STRING
