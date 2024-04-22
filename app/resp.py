@@ -25,6 +25,23 @@ class DataType:
     SIMPLE_ERROR  = b'-'
 
 
+@dataclass
+class Constant:
+    NULL_BULK_STRING = b'$-1\r\n'
+    TERMINATOR       = b'\r\n'
+
+
+@dataclass
+class Command:
+    PING = 'ping'
+    ECHO = 'echo'
+    SET  = 'set'
+    GET  = 'get'
+
+
+store = {}
+
+
 async def parse(reader: asyncio.StreamReader):
     """
     Parse commands (`bytes`) from socket stream using `reader` and return as a `list`.
@@ -35,16 +52,13 @@ async def parse(reader: asyncio.StreamReader):
     Example: *2\r\n$4\r\necho\r\n$3\r\nhello\r\n
     """
 
-
-    terminator = b'\r\n'
-
     try:
         _ = await reader.read(1)
         if _ != b'*': # not an array
             logger.error(f'Expected {DataType.ARRAY}, got {_}')
             return []
         
-        num_commands = int(await reader.readuntil(terminator))
+        num_commands = int(await reader.readuntil(Constant.TERMINATOR))
         # note: even though read.readuntil() returns bytes along with the terminator,
         # int() is able to handle bytes and surrounding whitespaces. 
         # note: '\r' and '\n' are counted as whitespaces.
@@ -56,13 +70,13 @@ async def parse(reader: asyncio.StreamReader):
             datatype = await reader.read(1)
 
             if datatype == DataType.BULK_STRING:
-                length = int(await reader.readuntil(terminator))
+                length = int(await reader.readuntil(Constant.TERMINATOR))
                 data   = await reader.read(length)
 
                 _ = await reader.read(2) 
                 # terminator not found after `length` bytes
-                if _ != terminator:
-                    logger.error(f"Expected {terminator}, got {_}")
+                if _ != Constant.TERMINATOR:
+                    logger.error(f"Expected {Constant.TERMINATOR}, got {_}")
                     return []
 
                 commands.append(data.decode())
@@ -82,8 +96,6 @@ async def encode(datatype: DataType, data: str):
     """
     Encode data as per RESP specifications
     """
-
-    print(datatype)
     
     if datatype in (DataType.SIMPLE_STRING, DataType.SIMPLE_ERROR):
         return b'\r\n'.join([datatype + data.encode(), b''])
@@ -103,8 +115,21 @@ async def execute(commands: list[str]):
     if not commands:
         return await encode(DataType.SIMPLE_ERROR, 'Invalid command')
     
-    if commands[0] == 'ping':
+    if commands[0] == Command.PING:
         return await encode(DataType.SIMPLE_STRING, 'PONG')
     
-    if commands[0] == 'echo':        
+    if commands[0] == Command.ECHO:        
         return await encode(DataType.SIMPLE_STRING, commands[1])
+
+    if commands[0] == Command.SET:
+        key   = commands[1]
+        value = commands[2]
+        store[key] = value
+        return await encode(DataType.SIMPLE_STRING, 'OK')
+
+    if commands[0] == Command.GET:
+        key = commands[1]
+        if key in store:
+            return await encode(DataType.BULK_STRING, store[key])
+        
+        return Constant.NULL_BULK_STRING
