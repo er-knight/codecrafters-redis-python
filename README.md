@@ -63,3 +63,4 @@ value in `codecrafters.yml`.
 # References
 - [Asyncio Streams in Python by Jason Brownlee](https://superfastpython.com/asyncio-streams)
 - [Asyncio Socket Servers by Jason Brownlee](https://superfastpython.com/asyncio-server/)
+- [Asyncio Chat Client and Server by Jason Brownlee](https://superfastpython.com/asyncio-chat-client-server/)

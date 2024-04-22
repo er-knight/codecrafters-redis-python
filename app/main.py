@@ -3,7 +3,6 @@ import asyncio
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
         command = await reader.read(n=1024)
-        print(command)
         writer.write('+PONG\r\n'.encode())
         await writer.drain()
 
