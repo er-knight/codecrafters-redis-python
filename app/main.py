@@ -1,9 +1,12 @@
 import asyncio
 
+import resp
+
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
-        command = await reader.read(n=1024)
-        writer.write('+PONG\r\n'.encode())
+        commands = resp.parse(reader)
+        result   = resp.execute(commands) 
+        writer.write(result)
         await writer.drain()
 
 async def main():
