@@ -3,7 +3,7 @@ import asyncio
 async def handler(reader, writer):
     _ = await reader.read()
     writer.write('+PONG\r\n')
-    writer.drain() 
+    await writer.drain() 
 
 async def main():
     server = await asyncio.start_server(handler, host='127.0.0.1', port=6379)
