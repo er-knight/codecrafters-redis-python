@@ -8,6 +8,7 @@ https://redis.io/docs/latest/develop/reference/protocol-spec/
 
 import asyncio
 import logging
+import time
 
 from dataclasses import dataclass
 
@@ -124,12 +125,20 @@ async def execute(commands: list[str]):
     if commands[0] == Command.SET:
         key   = commands[1]
         value = commands[2]
-        store[key] = value
+        px    = int(commands[4]) if len(commands) == 5 else None
+        
+        store[key] = {'value': value, 'px': time.time() * 1000 + px}
+
         return await encode(DataType.SIMPLE_STRING, 'OK')
 
     if commands[0] == Command.GET:
         key = commands[1]
+
         if key in store:
-            return await encode(DataType.BULK_STRING, store[key])
+            timestamp_ms = time.time() * 1000
+            if timestamp_ms < store[key]['px']:
+                return await encode(DataType.BULK_STRING, store[key])
+                
+            store.pop(key)
         
         return Constant.NULL_BULK_STRING
