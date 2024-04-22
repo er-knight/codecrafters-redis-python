@@ -140,7 +140,7 @@ async def execute(commands: list[str]):
         if key in store:
             timestamp_ms = time.time() * 1000
             if not store[key]['px'] or timestamp_ms < store[key]['px']:
-                return await encode(DataType.BULK_STRING, store[key])
+                return await encode(DataType.BULK_STRING, store[key]['value'])
                 
             store.pop(key)
 
