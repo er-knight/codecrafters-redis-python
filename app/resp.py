@@ -64,7 +64,7 @@ async def parse(reader: asyncio.StreamReader):
 
                 _ = await reader.read(2) 
                 # terminator not found after `length` bytes
-                if _ != '\r\n':
+                if _ != terminator:
                     logger.error(f"Expected {terminator}, got {_}")
                     return []
                 
