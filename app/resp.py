@@ -86,7 +86,7 @@ async def encode(datatype: DataType, data: str):
     print(datatype)
     
     if datatype in (DataType.SIMPLE_STRING, DataType.SIMPLE_ERROR):
-        return b'\r\n'.join([datatype, data.encode(), b''])
+        return b'\r\n'.join([datatype + data.encode(), b''])
 
     if datatype == DataType.BULK_STRING:
         data   = data.encode()
