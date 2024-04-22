@@ -35,12 +35,12 @@ async def parse(reader: asyncio.StreamReader):
     Example: *2\r\n$4\r\necho\r\n$3\r\nhello\r\n
     """
 
-    print('here')
 
     terminator = b'\r\n'
 
     try:
         _ = await reader.read(1)
+        print('here')
         if _ != b'*': # not an array
             logger.error(f'Expected {DataType.ARRAY}, got {_}')
             return []
