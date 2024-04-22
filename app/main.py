@@ -1,7 +1,8 @@
 import asyncio
 
 async def handler(reader, writer):
-    _ = await reader.read()
+    data = await reader.read()
+    print(data)
     writer.write('+PONG\r\n'.encode())
     await writer.drain() 
 
