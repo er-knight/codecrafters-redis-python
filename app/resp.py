@@ -95,11 +95,15 @@ async def execute(commands: list[str]):
     Execute commands and return the result.
     """
 
+    result = None
+
     if not commands:
-        return encode(DataType.SIMPLE_ERROR, 'Invalid command')
+        result = await encode(DataType.SIMPLE_ERROR, 'Invalid command')
     
     if commands[0] == 'ping':
-        return encode(DataType.SIMPLE_STRING, 'PONG')
+        result = await encode(DataType.SIMPLE_STRING, 'PONG')
     
     if commands[0] == 'echo':        
-        return encode(DataType.SIMPLE_STRING, commands[1])
+        result = await encode(DataType.SIMPLE_STRING, commands[1])
+
+    return result
