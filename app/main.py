@@ -16,32 +16,32 @@ async def send_handshake(address):
     )
     await writer.drain()
 
-    writer.write(
-        resp.encode(resp.DataType.ARRAY, [
-            resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
-            resp.encode(resp.DataType.BULK_STRING, 'listening-port'.encode()),
-            resp.encode(resp.DataType.BULK_STRING, '6380'.encode())
-        ])        
-    )
-    await writer.drain()
+    # writer.write(
+    #     resp.encode(resp.DataType.ARRAY, [
+    #         resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
+    #         resp.encode(resp.DataType.BULK_STRING, 'listening-port'.encode()),
+    #         resp.encode(resp.DataType.BULK_STRING, '6380'.encode())
+    #     ])        
+    # )
+    # await writer.drain()
 
-    writer.write(
-        resp.encode(resp.DataType.ARRAY, [
-            resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
-            resp.encode(resp.DataType.BULK_STRING, 'capa'.encode()),
-            resp.encode(resp.DataType.BULK_STRING, 'psync2'.encode())
-        ])        
-    )
-    await writer.drain()
+    # writer.write(
+    #     resp.encode(resp.DataType.ARRAY, [
+    #         resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
+    #         resp.encode(resp.DataType.BULK_STRING, 'capa'.encode()),
+    #         resp.encode(resp.DataType.BULK_STRING, 'psync2'.encode())
+    #     ])        
+    # )
+    # await writer.drain()
 
-    writer.write(
-        resp.encode(resp.DataType.ARRAY, [
-            resp.encode(resp.DataType.BULK_STRING, 'psync'.encode()),
-            resp.encode(resp.DataType.BULK_STRING, '?'.encode()),
-            resp.encode(resp.DataType.BULK_STRING, '-1'.encode())
-        ])        
-    )
-    await writer.drain()
+    # writer.write(
+    #     resp.encode(resp.DataType.ARRAY, [
+    #         resp.encode(resp.DataType.BULK_STRING, 'psync'.encode()),
+    #         resp.encode(resp.DataType.BULK_STRING, '?'.encode()),
+    #         resp.encode(resp.DataType.BULK_STRING, '-1'.encode())
+    #     ])        
+    # )
+    # await writer.drain()
 
 
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
@@ -65,7 +65,7 @@ async def main():
 
     if args.replicaof:
         config.config['replication']['role'] = 'slave'
-        # await send_handshake(args.replicaof)
+        await send_handshake(args.replicaof)
 
     server = await asyncio.start_server(handler, host=HOST, port=PORT)
     async with server:
