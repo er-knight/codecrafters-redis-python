@@ -248,4 +248,3 @@ async def execute_commands(commands: list[str]):
                 DataType.BULK_STRING, str(len(rdb_state)).encode(), Constant.TERMINATOR, rdb_state
             ]) 
         ]
-
