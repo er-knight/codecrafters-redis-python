@@ -117,7 +117,7 @@ async def encode(datatype: DataType, data: bytes | list[bytes]):
     if datatype == DataType.ARRAY:
         num_elements = len(data)
         return Constant.TERMINATOR.join([
-            datatype + str(num_elements).encode(), Constant.TERMINATOR.join(data)
+            datatype + str(num_elements).encode(), Constant.EMPTY_BYTE.join(data)
         ])
     
 
