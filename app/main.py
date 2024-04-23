@@ -6,7 +6,6 @@ from . import config
 
 
 async def send_handshake(address):
-    print(address)
     host, port = address
     _, writer = await asyncio.open_connection(host=host, port=port)
 
@@ -57,7 +56,7 @@ async def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port', type=int)
-    parser.add_argument('--replicaof', nargs=2, type=list)
+    parser.add_argument('--replicaof', nargs=2, type=str)
 
     args = parser.parse_args()
 
