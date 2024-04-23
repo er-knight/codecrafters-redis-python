@@ -6,6 +6,7 @@ from . import config
 
 
 async def send_handshake(address):
+    print(address)
     host, port = address
     _, writer = await asyncio.open_connection(host=host, port=port)
 
