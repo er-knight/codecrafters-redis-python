@@ -56,14 +56,16 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
         commands = await resp.parse_commands(reader)
         result   = await resp.execute_commands(commands)
+        
         if type(result) == list:
             for _result in result:
                 print(_result)
                 writer.write(_result)
-                await writer.drain()
+                
         else:
             writer.write(result)
-            await writer.drain()
+
+        await writer.drain()
 
 
 async def main():
