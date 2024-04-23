@@ -33,9 +33,11 @@ class Constant:
     NULL_BULK_STRING = b'$-1\r\n'
     TERMINATOR       = b'\r\n'
     EMPTY_BYTE       = b''
+    SPACE_BYTE       = b' '
     PONG             = b'PONG'
     OK               = b'OK'
     INVALID_COMMAND  = b'Invalid Command'
+    FULLRESYNC       = b'FULLRESYNC'
     
 
 @dataclass
@@ -151,7 +153,7 @@ async def parse_response(reader: asyncio.StreamReader):
         return elements
 
     datatype = await parse_datatype()
-    
+
     if datatype == DataType.ARRAY:
         return await parse_array()
     elif datatype == DataType.BULK_STRING:
@@ -228,4 +230,14 @@ async def execute_commands(commands: list[str]):
         return await encode(DataType.BULK_STRING, data)
 
     if commands[0].lower() == Command.REPLCONF:
-        return await encode(DataType.BULK_STRING, Constant.OK)
+        return await encode(DataType.SIMPLE_STRING, Constant.OK)
+    
+    if commands[0].lower() == Command.PSYNC:
+        return await encode(
+            DataType.SIMPLE_STRING, 
+            Constant.SPACE_BYTE.join([
+                Constant.FULLRESYNC, 
+                config.config['replication']['master_replid'].encode(), 
+                str(config.config['replication']['master_repl_offset']).encode()
+            ])
+        )

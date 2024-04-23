@@ -40,14 +40,16 @@ async def send_handshake(address):
 
     await resp.parse_response(reader)
 
-    # writer.write(
-    #     await resp.encode(resp.DataType.ARRAY, [
-    #         await resp.encode(resp.DataType.BULK_STRING, resp.Command.PSYNC.encode()),
-    #         await resp.encode(resp.DataType.BULK_STRING, '?'.encode()),
-    #         await resp.encode(resp.DataType.BULK_STRING, '-1'.encode())
-    #     ])        
-    # )
-    # await writer.drain()
+    writer.write(
+        await resp.encode(resp.DataType.ARRAY, [
+            await resp.encode(resp.DataType.BULK_STRING, resp.Command.PSYNC.encode()),
+            await resp.encode(resp.DataType.BULK_STRING, '?'.encode()),
+            await resp.encode(resp.DataType.BULK_STRING, '-1'.encode())
+        ])        
+    )
+    await writer.drain()
+
+    await resp.parse_response(reader)
 
 
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
