@@ -16,7 +16,7 @@ async def send_handshake(address):
     )
     await writer.drain()
 
-    await resp.parse_response()
+    await resp.parse_response(reader)
 
     writer.write(
         await resp.encode(resp.DataType.ARRAY, [
@@ -27,7 +27,7 @@ async def send_handshake(address):
     )
     await writer.drain()
 
-    await resp.parse_response()
+    await resp.parse_response(reader)
 
     writer.write(
         await resp.encode(resp.DataType.ARRAY, [
@@ -38,7 +38,7 @@ async def send_handshake(address):
     )
     await writer.drain()
 
-    await resp.parse_response()
+    await resp.parse_response(reader)
 
     # writer.write(
     #     await resp.encode(resp.DataType.ARRAY, [
