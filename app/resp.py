@@ -52,6 +52,7 @@ class Command:
 
 
 store = {}
+rdb_state = b'524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2'
 
 
 async def parse_commands(reader: asyncio.StreamReader):
@@ -233,11 +234,18 @@ async def execute_commands(commands: list[str]):
         return await encode(DataType.SIMPLE_STRING, Constant.OK)
     
     if commands[0].lower() == Command.PSYNC:
-        return await encode(
-            DataType.SIMPLE_STRING, 
-            Constant.SPACE_BYTE.join([
-                Constant.FULLRESYNC, 
-                config.config['replication']['master_replid'].encode(), 
-                str(config.config['replication']['master_repl_offset']).encode()
-            ])
-        )
+        return [
+            await encode(
+                DataType.SIMPLE_STRING, 
+                Constant.SPACE_BYTE.join([
+                    Constant.FULLRESYNC, 
+                    config.config['replication']['master_replid'].encode(), 
+                    str(config.config['replication']['master_repl_offset']).encode()
+                ])
+            ),
+            # note: this is NOT a RESP bulk string, as it doesn't contain a '\r\n' at the end
+            Constant.EMPTY_BYTE.join([
+                DataType.BULK_STRING, str(len(rdb_state)).encode(), Constant.TERMINATOR, rdb_state
+            ]) 
+        ]
+

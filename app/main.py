@@ -55,9 +55,14 @@ async def send_handshake(address):
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
         commands = await resp.parse_commands(reader)
-        result   = await resp.execute_commands(commands) 
-        writer.write(result)
-        await writer.drain()
+        result   = await resp.execute_commands(commands)
+        if type(result) == list:
+            for _result in result:
+                writer.write(_result)
+                await writer.drain()
+        else:
+            writer.write(result)
+            await writer.drain()
 
 
 async def main():
