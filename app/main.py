@@ -11,32 +11,32 @@ async def send_handshake(address):
 
     writer.write(
         await resp.encode(resp.DataType.ARRAY, [
-            await resp.encode(resp.DataType.BULK_STRING, 'ping'.encode())
+            await resp.encode(resp.DataType.BULK_STRING, resp.Command.PING.encode())
+        ])        
+    )
+    await writer.drain()
+
+    writer.write(
+        await resp.encode(resp.DataType.ARRAY, [
+            await resp.encode(resp.DataType.BULK_STRING, resp.Command.REPLCONF.encode()),
+            await resp.encode(resp.DataType.BULK_STRING, 'listening-port'.encode()),
+            await resp.encode(resp.DataType.BULK_STRING, '6380'.encode())
+        ])        
+    )
+    await writer.drain()
+
+    writer.write(
+        await resp.encode(resp.DataType.ARRAY, [
+            await resp.encode(resp.DataType.BULK_STRING, resp.Command.REPLCONF.encode()),
+            await resp.encode(resp.DataType.BULK_STRING, 'capa'.encode()),
+            await resp.encode(resp.DataType.BULK_STRING, 'psync2'.encode())
         ])        
     )
     await writer.drain()
 
     # writer.write(
     #     await resp.encode(resp.DataType.ARRAY, [
-    #         await resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
-    #         await resp.encode(resp.DataType.BULK_STRING, 'listening-port'.encode()),
-    #         await resp.encode(resp.DataType.BULK_STRING, '6380'.encode())
-    #     ])        
-    # )
-    # await writer.drain()
-
-    # writer.write(
-    #     await resp.encode(resp.DataType.ARRAY, [
-    #         await resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
-    #         await resp.encode(resp.DataType.BULK_STRING, 'capa'.encode()),
-    #         await resp.encode(resp.DataType.BULK_STRING, 'psync2'.encode())
-    #     ])        
-    # )
-    # await writer.drain()
-
-    # writer.write(
-    #     await resp.encode(resp.DataType.ARRAY, [
-    #         await resp.encode(resp.DataType.BULK_STRING, 'psync'.encode()),
+    #         await resp.encode(resp.DataType.BULK_STRING, resp.Command.PSYNC.encode()),
     #         await resp.encode(resp.DataType.BULK_STRING, '?'.encode()),
     #         await resp.encode(resp.DataType.BULK_STRING, '-1'.encode())
     #     ])        

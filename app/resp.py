@@ -33,15 +33,20 @@ class Constant:
     NULL_BULK_STRING = b'$-1\r\n'
     TERMINATOR       = b'\r\n'
     EMPTY_BYTE       = b''
-
+    PONG             = b'PONG'
+    OK               = b'OK'
+    INVALID_COMMAND  = b'Invalid Command'
+    
 
 @dataclass
 class Command:
-    PING = 'ping'
-    ECHO = 'echo'
-    SET  = 'set'
-    GET  = 'get'
-    INFO = 'info'
+    PING     = 'ping'
+    ECHO     = 'echo'
+    SET      = 'set'
+    GET      = 'get'
+    INFO     = 'info'
+    REPLCONF = 'replconf'
+    PSYNC    = 'psync'
 
 
 store = {}
@@ -122,10 +127,10 @@ async def execute(commands: list[str]):
     """
 
     if not commands:
-        return await encode(DataType.SIMPLE_ERROR, 'Invalid command'.encode())
+        return await encode(DataType.SIMPLE_ERROR, Constant.INVALID_COMMAND)
     
     if commands[0].lower() == Command.PING:
-        return await encode(DataType.SIMPLE_STRING, 'PONG'.encode())
+        return await encode(DataType.SIMPLE_STRING, Constant.PONG)
     
     if commands[0].lower() == Command.ECHO:        
         return await encode(DataType.SIMPLE_STRING, commands[1].encode())
@@ -140,7 +145,7 @@ async def execute(commands: list[str]):
             px = int(commands[4])
             store[key]['px'] = time.time() * 1000 + px
 
-        return await encode(DataType.SIMPLE_STRING, 'OK'.encode())
+        return await encode(DataType.SIMPLE_STRING, Constant.OK)
 
     if commands[0].lower() == Command.GET:
         key = commands[1]
@@ -161,3 +166,6 @@ async def execute(commands: list[str]):
         data = '\n'.join([f'{key}:{value}' for key, value in section_config.items()]).encode()
         
         return await encode(DataType.BULK_STRING, data)
+
+    if commands[0].lower() == Command.REPLCONF:
+        return await encode(DataType.BULK_STRING, Constant.OK)
