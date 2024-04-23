@@ -12,6 +12,8 @@ import time
 
 from dataclasses import dataclass
 
+from . import config
+
 
 # asyncio uses the logging module and all logging is performed via the "asyncio" logger.
 # Reference: https://docs.python.org/3/library/asyncio-dev.html#logging
@@ -38,6 +40,7 @@ class Command:
     ECHO = 'echo'
     SET  = 'set'
     GET  = 'get'
+    INFO = 'info'
 
 
 store = {}
@@ -145,3 +148,9 @@ async def execute(commands: list[str]):
             store.pop(key)
 
         return Constant.NULL_BULK_STRING
+
+    if commands[0] == Command.INFO:
+        section = commands[1]
+        section_config = config.config[section]
+        data = '\n'.join([f'{key}:{value}' for key, value in section_config.items()]).encode()
+        return await encode(DataType.BULK_STRING, data)
