@@ -119,13 +119,13 @@ async def execute(commands: list[str]):
     if not commands:
         return await encode(DataType.SIMPLE_ERROR, 'Invalid command')
     
-    if commands[0] == Command.PING:
+    if commands[0].lower() == Command.PING:
         return await encode(DataType.SIMPLE_STRING, 'PONG')
     
-    if commands[0] == Command.ECHO:        
+    if commands[0].lower() == Command.ECHO:        
         return await encode(DataType.SIMPLE_STRING, commands[1])
 
-    if commands[0] == Command.SET:
+    if commands[0].lower() == Command.SET:
         key   = commands[1]
         value = commands[2]
 
@@ -137,7 +137,7 @@ async def execute(commands: list[str]):
 
         return await encode(DataType.SIMPLE_STRING, 'OK')
 
-    if commands[0] == Command.GET:
+    if commands[0].lower() == Command.GET:
         key = commands[1]
 
         if key in store:
@@ -149,7 +149,7 @@ async def execute(commands: list[str]):
 
         return Constant.NULL_BULK_STRING
 
-    if commands[0] == Command.INFO:
+    if commands[0].lower() == Command.INFO:
         section = commands[1]
         print(section)
         section_config = config.config[section]
