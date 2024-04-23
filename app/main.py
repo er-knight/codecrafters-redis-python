@@ -73,6 +73,8 @@ async def main():
 
     args = parser.parse_args()
 
+    print(f'{args = }')
+
     HOST = '127.0.0.1'
     PORT = args.port or 6379
 
