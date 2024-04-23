@@ -7,7 +7,7 @@ from . import config
 
 async def send_handshake(address):
     host, port = address
-    _, writer = await asyncio.open_connection(host=host, port=port)
+    reader, writer = await asyncio.open_connection(host=host, port=port)
 
     writer.write(
         await resp.encode(resp.DataType.ARRAY, [
@@ -15,6 +15,8 @@ async def send_handshake(address):
         ])        
     )
     await writer.drain()
+
+    await resp.parse_response()
 
     writer.write(
         await resp.encode(resp.DataType.ARRAY, [
@@ -25,6 +27,8 @@ async def send_handshake(address):
     )
     await writer.drain()
 
+    await resp.parse_response()
+
     writer.write(
         await resp.encode(resp.DataType.ARRAY, [
             await resp.encode(resp.DataType.BULK_STRING, resp.Command.REPLCONF.encode()),
@@ -33,6 +37,8 @@ async def send_handshake(address):
         ])        
     )
     await writer.drain()
+
+    await resp.parse_response()
 
     # writer.write(
     #     await resp.encode(resp.DataType.ARRAY, [
@@ -46,8 +52,8 @@ async def send_handshake(address):
 
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
-        commands = await resp.parse(reader)
-        result   = await resp.execute(commands) 
+        commands = await resp.parse_commands(reader)
+        result   = await resp.execute_commands(commands) 
         writer.write(result)
         await writer.drain()
 

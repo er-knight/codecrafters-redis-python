@@ -52,7 +52,7 @@ class Command:
 store = {}
 
 
-async def parse(reader: asyncio.StreamReader):
+async def parse_commands(reader: asyncio.StreamReader):
     """
     Parse commands (`bytes`) from socket stream using `reader` and return as a `list`.
     
@@ -64,7 +64,7 @@ async def parse(reader: asyncio.StreamReader):
 
     try:
         _ = await reader.read(1)
-        if _ != b'*': # not an array
+        if _ != DataType.ARRAY:
             logger.error(f'Expected {DataType.ARRAY}, got {_}')
             return []
         
@@ -102,6 +102,66 @@ async def parse(reader: asyncio.StreamReader):
         return []
 
 
+async def parse_response(reader: asyncio.StreamReader):
+    """
+    Parse response of executed command
+    """
+
+    async def parse_datatype():
+        return await reader.read(1)
+    
+    async def parse_bulk_string():
+        length = int(await reader.readuntil(Constant.TERMINATOR))
+        data   = await reader.read(length)
+
+        _ = await reader.read(2) 
+        # terminator not found after `length` bytes
+        if _ != Constant.TERMINATOR:
+            logger.error(f"Expected {Constant.TERMINATOR}, got {_}")
+            return Constant.EMPTY_BYTE
+
+        return data
+
+    async def parse_simple_string():
+        data = await reader.readuntil(Constant.TERMINATOR)
+        return data.strip(Constant.TERMINATOR)
+
+    async def parse_simple_error():
+        data = await reader.readuntil(Constant.TERMINATOR)
+        return data.strip(Constant.TERMINATOR)
+    
+    async def parse_array():
+        num_elements = int(await reader.readuntil(Constant.TERMINATOR))    
+        elements = []
+
+        while num_elements > 0:
+        
+            datatype = await parse_datatype()
+        
+            if datatype == DataType.BULK_STRING:
+                element = await parse_bulk_string()
+            elif datatype == DataType.SIMPLE_STRING:
+                element = await parse_simple_string()
+            elif datatype == DataType.SIMPLE_ERROR:
+                element = await parse_simple_error()
+            
+            elements.append(element)
+            num_elements -= 1
+
+        return elements
+
+    datatype = await parse_datatype()
+    
+    if datatype == DataType.ARRAY:
+        return await parse_array()
+    elif datatype == DataType.BULK_STRING:
+        return await parse_bulk_string()
+    elif datatype == DataType.SIMPLE_STRING:
+        return await parse_simple_string()
+    elif datatype == DataType.SIMPLE_ERROR:
+        return await parse_simple_error()
+            
+
 async def encode(datatype: DataType, data: bytes | list[bytes]):
     """
     Encode data as per RESP specifications
@@ -121,7 +181,7 @@ async def encode(datatype: DataType, data: bytes | list[bytes]):
         ])
     
 
-async def execute(commands: list[str]):
+async def execute_commands(commands: list[str]):
     """
     Execute commands and return the result.
     """
