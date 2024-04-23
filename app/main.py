@@ -10,35 +10,35 @@ async def send_handshake(address):
     _, writer = await asyncio.open_connection(host=host, port=port)
 
     writer.write(
-        resp.encode(resp.DataType.ARRAY, [
-            resp.encode(resp.DataType.BULK_STRING, 'ping'.encode())
+        await resp.encode(resp.DataType.ARRAY, [
+            await resp.encode(resp.DataType.BULK_STRING, 'ping'.encode())
         ])        
     )
     await writer.drain()
 
     # writer.write(
-    #     resp.encode(resp.DataType.ARRAY, [
-    #         resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
-    #         resp.encode(resp.DataType.BULK_STRING, 'listening-port'.encode()),
-    #         resp.encode(resp.DataType.BULK_STRING, '6380'.encode())
+    #     await resp.encode(resp.DataType.ARRAY, [
+    #         await resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
+    #         await resp.encode(resp.DataType.BULK_STRING, 'listening-port'.encode()),
+    #         await resp.encode(resp.DataType.BULK_STRING, '6380'.encode())
     #     ])        
     # )
     # await writer.drain()
 
     # writer.write(
-    #     resp.encode(resp.DataType.ARRAY, [
-    #         resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
-    #         resp.encode(resp.DataType.BULK_STRING, 'capa'.encode()),
-    #         resp.encode(resp.DataType.BULK_STRING, 'psync2'.encode())
+    #     await resp.encode(resp.DataType.ARRAY, [
+    #         await resp.encode(resp.DataType.BULK_STRING, 'replconf'.encode()),
+    #         await resp.encode(resp.DataType.BULK_STRING, 'capa'.encode()),
+    #         await resp.encode(resp.DataType.BULK_STRING, 'psync2'.encode())
     #     ])        
     # )
     # await writer.drain()
 
     # writer.write(
-    #     resp.encode(resp.DataType.ARRAY, [
-    #         resp.encode(resp.DataType.BULK_STRING, 'psync'.encode()),
-    #         resp.encode(resp.DataType.BULK_STRING, '?'.encode()),
-    #         resp.encode(resp.DataType.BULK_STRING, '-1'.encode())
+    #     await resp.encode(resp.DataType.ARRAY, [
+    #         await resp.encode(resp.DataType.BULK_STRING, 'psync'.encode()),
+    #         await resp.encode(resp.DataType.BULK_STRING, '?'.encode()),
+    #         await resp.encode(resp.DataType.BULK_STRING, '-1'.encode())
     #     ])        
     # )
     # await writer.drain()
