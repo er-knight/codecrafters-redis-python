@@ -32,6 +32,7 @@ class DataType:
 class Constant:
     NULL_BULK_STRING = b'$-1\r\n'
     TERMINATOR       = b'\r\n'
+    EMPTY_BYTE       = b''
 
 
 @dataclass
@@ -96,20 +97,24 @@ async def parse(reader: asyncio.StreamReader):
         return []
 
 
-async def encode(datatype: DataType, data: str):
+async def encode(datatype: DataType, data: bytes | list[bytes]):
     """
     Encode data as per RESP specifications
     """
     
     if datatype in (DataType.SIMPLE_STRING, DataType.SIMPLE_ERROR):
-        return b'\r\n'.join([datatype + data.encode(), b''])
+        return Constant.TERMINATOR.join([datatype + data, Constant.EMPTY_BYTE])
 
     if datatype == DataType.BULK_STRING:
-        data   = data.encode()
         length = len(data)
-        return b'\r\n'.join([datatype + str(length).encode(), data, b''])
+        return Constant.TERMINATOR.join([datatype + str(length).encode(), data, Constant.EMPTY_BYTE])
     
-    return b''
+    if datatype == DataType.ARRAY:
+        num_elements = len(data)
+        return Constant.TERMINATOR.join([
+            datatype + str(num_elements).encode(), Constant.TERMINATOR.join(data), Constant.EMPTY_BYTE
+        ])
+    
 
 async def execute(commands: list[str]):
     """
@@ -117,13 +122,13 @@ async def execute(commands: list[str]):
     """
 
     if not commands:
-        return await encode(DataType.SIMPLE_ERROR, 'Invalid command')
+        return await encode(DataType.SIMPLE_ERROR, 'Invalid command'.encode())
     
     if commands[0].lower() == Command.PING:
-        return await encode(DataType.SIMPLE_STRING, 'PONG')
+        return await encode(DataType.SIMPLE_STRING, 'PONG'.encode())
     
     if commands[0].lower() == Command.ECHO:        
-        return await encode(DataType.SIMPLE_STRING, commands[1])
+        return await encode(DataType.SIMPLE_STRING, commands[1].encode())
 
     if commands[0].lower() == Command.SET:
         key   = commands[1]
@@ -135,7 +140,7 @@ async def execute(commands: list[str]):
             px = int(commands[4])
             store[key]['px'] = time.time() * 1000 + px
 
-        return await encode(DataType.SIMPLE_STRING, 'OK')
+        return await encode(DataType.SIMPLE_STRING, 'OK'.encode())
 
     if commands[0].lower() == Command.GET:
         key = commands[1]
@@ -143,7 +148,7 @@ async def execute(commands: list[str]):
         if key in store:
             timestamp_ms = time.time() * 1000
             if not store[key]['px'] or timestamp_ms < store[key]['px']:
-                return await encode(DataType.BULK_STRING, store[key]['value'])
+                return await encode(DataType.BULK_STRING, store[key]['value'].encode())
                 
             store.pop(key)
 
@@ -151,6 +156,8 @@ async def execute(commands: list[str]):
 
     if commands[0].lower() == Command.INFO:
         section = commands[1]
-        section_config = config.config[section]
-        data = '\n'.join([f'{key}:{value}' for key, value in section_config.items()])
+
+        section_config = config.config[section]        
+        data = '\n'.join([f'{key}:{value}' for key, value in section_config.items()]).encode()
+        
         return await encode(DataType.BULK_STRING, data)
