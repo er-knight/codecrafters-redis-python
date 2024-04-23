@@ -58,6 +58,7 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         result   = await resp.execute_commands(commands)
         if type(result) == list:
             for _result in result:
+                print(_result)
                 writer.write(_result)
                 await writer.drain()
         else:
