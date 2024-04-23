@@ -151,8 +151,6 @@ async def execute(commands: list[str]):
 
     if commands[0].lower() == Command.INFO:
         section = commands[1]
-        print(section)
         section_config = config.config[section]
-        data = '\n'.join([f'{key}:{value}' for key, value in section_config.items()]).encode()
-        print(data)
+        data = '\n'.join([f'{key}:{value}' for key, value in section_config.items()])
         return await encode(DataType.BULK_STRING, data)
