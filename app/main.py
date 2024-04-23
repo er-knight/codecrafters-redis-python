@@ -67,7 +67,6 @@ async def main():
         config.config['replication']['role'] = 'slave'
         # await send_handshake(args.replicaof)
 
-
     server = await asyncio.start_server(handler, host=HOST, port=PORT)
     async with server:
         await server.serve_forever()
