@@ -56,7 +56,7 @@ async def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port', type=int)
-    parser.add_argument('--replicaof', nargs='2', type=list)
+    parser.add_argument('--replicaof', nargs=2, type=list)
 
     args = parser.parse_args()
 
