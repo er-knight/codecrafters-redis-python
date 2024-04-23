@@ -1,6 +1,8 @@
 import asyncio
+import argparse
 
 from . import resp
+
 
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
@@ -9,10 +11,21 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         writer.write(result)
         await writer.drain()
 
+
 async def main():
-    server = await asyncio.start_server(handler, host='127.0.0.1', port=6379)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', type=int)
+
+    args = parser.parse_args()
+
+    HOST = '127.0.0.1'
+    PORT = args.port or 6379
+
+    server = await asyncio.start_server(handler, host=HOST, port=PORT)
     async with server:
         await server.serve_forever()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
