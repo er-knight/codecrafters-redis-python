@@ -60,7 +60,7 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
         commands = await resp.parse_commands(reader)
         
-        if commands and commands[0].lower() == resp.Command.REPLCONF:
+        if commands and commands[0].lower() == resp.Command.REPLCONF and commands[1] == 'listening-port':
             replica_connections.append((reader, writer))
             print(replica_connections)
 
@@ -73,13 +73,14 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
             writer.write(result)
             await writer.drain()
 
-        # commands_bytes = await resp.encode(resp.DataType.ARRAY, [
-        #     (await resp.encode(resp.DataType.BULK_STRING, command.encode())) for command in commands
-        # ])
-        # if commands[0].lower() in write_commands:
-        #     for _, writer in replica_connections:
-        #         writer.write(commands_bytes)
-        #         await writer.drain()
+        commands_bytes = await resp.encode(resp.DataType.ARRAY, [
+            (await resp.encode(resp.DataType.BULK_STRING, command.encode())) for command in commands
+        ])
+        print(commands_bytes)
+        if commands[0].lower() in write_commands:
+            for _, writer in replica_connections:
+                writer.write(commands_bytes)
+                await writer.drain()
 
 
 async def main():
