@@ -76,11 +76,12 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         commands_bytes = await resp.encode(resp.DataType.ARRAY, [
             (await resp.encode(resp.DataType.BULK_STRING, command.encode())) for command in commands
         ])
-        print(commands_bytes)
         if commands[0].lower() in write_commands:
-            async for _, writer in replica_connections:
+            for _, writer in replica_connections:
                 writer.write(commands_bytes)
                 await writer.drain()
+                print(f'sent {commands_bytes} to {writer}')
+
 
 
 async def main():
