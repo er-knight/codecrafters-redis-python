@@ -66,7 +66,7 @@ async def parse_commands(reader: asyncio.StreamReader):
     """
 
     try:
-        print(f'reading from {reader} of {reader.get_extra_info('sockname')}')
+        print(f'reading from {reader}')
         _ = await reader.read(1)
         if _ != DataType.ARRAY:
             logger.error(f'Expected {DataType.ARRAY}, got {_}')
