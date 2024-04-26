@@ -60,7 +60,7 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
         commands = await resp.parse_commands(reader)
         
-        if commands[0].lower() == resp.Command.REPLCONF:
+        if commands and commands[0].lower() == resp.Command.REPLCONF:
             replica_connections.append((reader, writer))
 
         result = await resp.execute_commands(commands)
