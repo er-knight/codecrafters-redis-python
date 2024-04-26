@@ -78,7 +78,7 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         ])
         print(commands_bytes)
         if commands[0].lower() in write_commands:
-            for _, writer in replica_connections:
+            async for _, writer in replica_connections:
                 writer.write(commands_bytes)
                 await writer.drain()
 
