@@ -80,7 +80,7 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
             for _, writer in replica_connections:
                 writer.write(commands_bytes)
                 await writer.drain()
-                print(f'sent {commands_bytes} to {writer}')
+                print(f'sent {commands_bytes} to {writer} of {writer.get_extra_info('sockname')}')
 
 
 
