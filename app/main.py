@@ -5,6 +5,10 @@ from . import resp
 from . import config
 
 
+replica_connections = []
+write_commands = set([resp.Command.SET])
+
+
 async def send_handshake(address):
     host, port = address
     reader, writer = await asyncio.open_connection(host=host, port=port)
@@ -55,7 +59,11 @@ async def send_handshake(address):
 async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
         commands = await resp.parse_commands(reader)
-        result   = await resp.execute_commands(commands)
+        
+        if commands[0].lower() == resp.Command.REPLCONF:
+            resp.replica_connections.append((reader, writer))
+
+        result = await resp.execute_commands(commands)
         if type(result) == list:
             for _result in result:
                 writer.write(_result)
@@ -63,6 +71,14 @@ async def handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         else:
             writer.write(result)
             await writer.drain()
+
+        commands_bytes = await resp.encode(resp.DataType.ARRAY, [
+            (await resp.encode(resp.DataType.BULK_STRING, command.encode())) for command in commands
+        ])
+        if commands[0].lower() in write_commands:
+            for _, writer in replica_connections:
+                writer.write(commands_bytes)
+                await writer.drain()
 
 
 async def main():
@@ -72,8 +88,6 @@ async def main():
     parser.add_argument('--replicaof', nargs=2, type=str)
 
     args = parser.parse_args()
-
-    print(f'{args = }')
 
     HOST = '127.0.0.1'
     PORT = args.port or 6379

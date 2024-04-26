@@ -243,7 +243,7 @@ async def execute_commands(commands: list[str]):
                     str(config.config['replication']['master_repl_offset']).encode()
                 ])
             ),
-            # note: this is NOT a RESP bulk string, as it doesn't contain a '\r\n' at the end
+            # note: following is NOT a RESP bulk string, as it doesn't contain a '\r\n' at the end
             Constant.EMPTY_BYTE.join([
                 DataType.BULK_STRING, str(len(rdb_state)).encode(), Constant.TERMINATOR, rdb_state
             ]) 
